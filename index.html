@@ -77,6 +77,12 @@
         background-color: #c7c7cc;
         cursor: not-allowed;
       }
+      #debugInfo {
+        margin-top: 20px;
+        font-size: 12px;
+        color: #86868b;
+        text-align: left;
+      }
     </style>
   </head>
   <body>
@@ -92,18 +98,20 @@
           Convert to PNG
         </button>
       </div>
+      <div id="debugInfo"></div>
     </div>
 
     <script>
       const uploadArea = document.getElementById("uploadArea");
       const fileInfo = document.getElementById("fileInfo");
       const convertButton = document.getElementById("convertButton");
+      const debugInfo = document.getElementById("debugInfo");
       let selectedFile = null;
 
       uploadArea.addEventListener("click", () => {
         const input = document.createElement("input");
         input.type = "file";
-        input.accept = ".heic,.heif";
+        input.accept = "image/*"; // Accept all image types
         input.onchange = (e) => {
           selectedFile = e.target.files[0];
           handleFile(selectedFile);
@@ -132,21 +140,19 @@
       });
 
       function handleFile(file) {
-        if (
-          file &&
-          (file.name.endsWith(".heic") || file.name.endsWith(".heif"))
-        ) {
+        debugInfo.innerHTML = `File name: ${file.name}<br>File type: ${file.type}<br>File size: ${file.size} bytes`;
+
+        if (file && file.type.startsWith("image/")) {
           fileInfo.textContent = `Selected file: ${file.name}`;
           convertButton.disabled = false;
         } else {
-          fileInfo.textContent = "Please select a valid HEIF file.";
+          fileInfo.textContent = "Please select a valid image file.";
           convertButton.disabled = true;
         }
       }
 
       convertButton.addEventListener("click", () => {
         if (selectedFile) {
-          // In a real implementation, this is where you'd send the file to a server for conversion
           alert(
             "Conversion would happen here. In a real implementation, the file would be sent to a server for processing."
           );
@@ -155,10 +161,7 @@
           setTimeout(() => {
             const link = document.createElement("a");
             link.href = "/api/placeholder/400/320"; // Using a placeholder image
-            link.download = selectedFile.name.replace(
-              /\.(heic|heif)$/i,
-              ".png"
-            );
+            link.download = selectedFile.name.replace(/\.(.*?)$/i, ".png");
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
