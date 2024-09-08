@@ -17,30 +17,30 @@
       .container {
         max-width: 800px;
         margin: 0 auto;
-        padding: 40px 20px;
+        padding: 20px;
       }
       h1 {
-        font-size: 48px;
+        font-size: 32px;
         font-weight: 700;
         text-align: center;
         margin-bottom: 20px;
       }
       p {
-        font-size: 18px;
+        font-size: 16px;
         text-align: center;
-        margin-bottom: 40px;
+        margin-bottom: 20px;
       }
       .converter-box {
         background-color: #ffffff;
         border-radius: 18px;
-        padding: 40px;
+        padding: 20px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         text-align: center;
       }
       .upload-area {
         border: 2px dashed #c7c7cc;
         border-radius: 12px;
-        padding: 40px;
+        padding: 20px;
         margin-bottom: 20px;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -102,7 +102,7 @@
       <p>Convert your HEIF images to PNG format with ease</p>
       <div class="converter-box">
         <div class="upload-area" id="uploadArea">
-          <p>Drag and drop your HEIF file here, or click to select</p>
+          <p>Tap here to select a HEIF file</p>
         </div>
         <input
           type="file"
@@ -121,7 +121,9 @@
       </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js"></script>
+    <script src="https://unpkg.com/heic2any@0.0.4/dist/heic2any.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-load-image/5.16.0/load-image.all.min.js"></script>
     <script>
       const uploadArea = document.getElementById("uploadArea");
       const fileInput = document.getElementById("fileInput");
@@ -133,25 +135,6 @@
       let selectedFile = null;
 
       uploadArea.addEventListener("click", () => fileInput.click());
-
-      uploadArea.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        uploadArea.style.borderColor = "#0071e3";
-        uploadArea.style.backgroundColor = "#f5f5f7";
-      });
-
-      uploadArea.addEventListener("dragleave", (e) => {
-        e.preventDefault();
-        uploadArea.style.borderColor = "#c7c7cc";
-        uploadArea.style.backgroundColor = "#ffffff";
-      });
-
-      uploadArea.addEventListener("drop", (e) => {
-        e.preventDefault();
-        uploadArea.style.borderColor = "#c7c7cc";
-        uploadArea.style.backgroundColor = "#ffffff";
-        handleFiles(e.dataTransfer.files);
-      });
 
       fileInput.addEventListener("change", (e) => handleFiles(e.target.files));
 
@@ -165,12 +148,14 @@
       }
 
       function displayImagePreview(file) {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          imagePreview.src = e.target.result;
-          imagePreview.style.display = "block";
-        };
-        reader.readAsDataURL(file);
+        loadImage(
+          file,
+          function (img) {
+            imagePreview.src = img.toDataURL("image/png");
+            imagePreview.style.display = "block";
+          },
+          { maxWidth: 300, maxHeight: 300, canvas: true }
+        );
       }
 
       convertButton.addEventListener("click", async () => {
